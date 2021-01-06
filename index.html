@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="keywords" content="画板,在线画板,在线绘画,在线画画,公共画板,网络画板">
+  <meta name="description" content="在线画板,在线绘画,在线画画,在线工具">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <title>在线画板</title>
+  <style rel="stylesheet" type="text/css">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      background-color: beige;
+    }
+
+    canvas {
+      position: absolute;
+    }
+
+    #tutorial_1 {
+      z-index: 100
+    }
+
+    #tutorial_2 {
+      z-index: 200
+    }
+
+    .utils {
+      background-color: burlywood;
+      position: absolute;
+      display: flex;
+      padding-top: 5px;
+      z-index: 300;
+      height: 70px;
+      width: 100%;
+    }
+
+    .utils>div {
+      width: 80px;
+      height: 100%;
+      /* line-height: 50px; */
+      text-align: center;
+      display: inline-block;
+    }
+
+    @media screen and(min-width: 960px) and (max-width: 1199px) {
+      #div_logo {
+        font-size: 26px;
+      }
+
+      .utils>div {
+        width: 60px;
+        font-size: 28px;
+      }
+
+      .utils i {
+        font-size: 28px;
+        /* line-height: 23px; */
+      }
+    }
+
+    @media screen and(min-width: 768px) and (max-width: 959px) {
+      #div_logo {
+        font-size: 24px;
+      }
+
+      .utils>div {
+        width: 56px;
+        font-size: 26px;
+      }
+
+      .utils i {
+        font-size: 26px;
+        /* line-height: 23px; */
+      }
+    }
+
+    @media screen and(min-width: 480px) and (max-width: 767px) {
+      #div_logo {
+        font-size: 20px;
+      }
+
+      .utils>div {
+        width: 48px;
+        font-size: 20px;
+      }
+
+      .utils i {
+        font-size: 20px;
+        /* line-height: 23px; */
+      }
+    }
+
+    @media screen and (max-width: 479px) {
+      #div_logo {
+        font-size: 16px;
+      }
+
+      .utils>div {
+        width: 40px;
+        font-size: 18px;
+      }
+
+      .utils i {
+        font-size: 18px;
+        /* line-height: 23px; */
+      }
+    }
+
+    #div_color {
+      width: 260px;
+    }
+
+    .utils i {
+      font-size: 23px;
+      display: block;
+      line-height: 23px;
+    }
+
+    .div_colors {
+      display: block;
+      line-height: 10px;
+    }
+
+    .div_hover:hover {
+      background-color: rgb(228, 175, 106);
+    }
+
+    .div_color {
+      display: inline-block;
+      width: 17px;
+      height: 17px;
+      margin-top: 5px;
+      border-style: solid;
+      border-width: 1px;
+      border-color: rgba(0, 0, 0, 0);
+    }
+
+    .color_hover:hover {
+      border-color: whitesmoke;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      /* background-color: #f9f9f9; */
+      min-width: 100px;
+      /*box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);*/
+      padding: 82px 16px;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+  </style>
+  <style rel="stylesheet" type="text/css">
+    h1 {
+      text-align: center;
+      margin: 0 0 10vh 0;
+      font-size: 7vh;
+      font-weight: 500;
+      text-shadow: 0px -15px 70px rgba(77, 80, 117, 0.6);
+    }
+
+    h1 b {
+      font-weight: 900;
+    }
+
+    p {
+      text-align: center;
+      font-size: 1.3rem;
+      text-shadow: 10px 5px 25px rgba(77, 80, 117, 0.6);
+      margin-bottom: 4vh;
+    }
+
+    .third-bar-p {
+      margin-top: 7vh;
+    }
+
+    .perspective {
+      -webkit-perspective: 70vh;
+      perspective: 70vh;
+      text-align: center;
+      -webkit-perspective-origin: 50% 50%;
+      perspective-origin: 50% 50%;
+      position: relative;
+      transition: -webkit-transform 0.3s ease;
+      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+    }
+
+    .perspective:hover {
+      -webkit-transform: scale(1.04);
+      transform: scale(1.04);
+    }
+
+    .bar-input {
+      position: absolute;
+      height: 100%;
+      left: 0;
+      right: 0;
+      margin: auto;
+      opacity: 0;
+    }
+
+    #first-bar .bar-input {
+      width: 55vh;
+    }
+
+    #second-bar .bar-input {
+      width: 40vh;
+    }
+
+    #third-bar .bar-input {
+      width: 22vh;
+    }
+
+    .bar {
+      display: inline-block;
+      position: relative;
+      -webkit-transform: rotateX(55deg);
+      transform: rotateX(55deg);
+      -webkit-transform-style: preserve-3d;
+      transform-style: preserve-3d;
+    }
+
+    .bar .bar-face {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      -webkit-transform-origin: 50% 100%;
+      transform-origin: 50% 100%;
+    }
+
+    .bar .bar-face.front {
+      -webkit-transform: rotateX(-90deg);
+      transform: rotateX(-90deg);
+    }
+
+    .bar .bar-face.percentage:before {
+      height: 100%;
+      content: "";
+      display: block;
+      position: absolute;
+      bottom: 0;
+      margin: 0;
+    }
+
+    #first-bar .bar {
+      width: 55vh;
+      height: 7vh;
+    }
+
+    #first-bar .bar .bar-face {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    #first-bar .bar .bar-face.floor {
+      box-shadow: 0 0.6em 0.6em -0.2em rgba(0, 0, 70, 0.25), 0 -2em 15em 0.5em #4d5075, 0 -0.75em 25em 10em rgba(255, 255, 255, 0.4);
+    }
+
+    #first-bar .bar .bar-face.percentage:before {
+      box-shadow: 0 0.8em 3.5em -0.15em rgba(149, 65, 105, 0.5);
+    }
+
+    #first-bar .bar .bar-face.roof {
+      -webkit-transform: translateZ(3.5vh);
+      transform: translateZ(3.5vh);
+    }
+
+    #first-bar .bar .bar-face.back {
+      -webkit-transform: rotateX(-90deg) translateZ(-4vh);
+      transform: rotateX(-90deg) translateZ(-4vh);
+    }
+
+    #first-bar .bar .bar-face.percentage:before {
+      background-color: rgba(149, 65, 105, 0.6);
+    }
+
+    #second-bar .bar {
+      width: 40vh;
+      height: 10vh;
+    }
+
+    #second-bar .bar .bar-face {
+      background: rgba(60, 75, 132, 0.5);
+      background-image: linear-gradient(90deg, rgba(134, 114, 146, 0.5), rgba(60, 75, 132, 0.1)), url("https://zephyo.github.io/22Days/code/5/graphics/stars.svg"), url("https://zephyo.github.io/22Days/code/5/graphics/stars2.svg");
+      background-repeat: repeat repeat;
+    }
+
+    #second-bar .bar .bar-face.floor {
+      box-shadow: 0 0.6em 0.6em -0.2em rgba(0, 0, 70, 0.25), 0 -2em 15em 0.5em #4d5075, 0 -0.75em 25em 10em rgba(255, 255, 255, 0.4);
+    }
+
+    #second-bar .bar .bar-face.percentage:before {
+      box-shadow: 0 0.8em 3.5em -0.15em rgba(200, 212, 250, 0.5);
+    }
+
+    #second-bar .bar .bar-face.roof {
+      -webkit-transform: translateZ(10vh);
+      transform: translateZ(10vh);
+    }
+
+    #second-bar .bar .bar-face.back {
+      -webkit-transform: rotateX(-90deg) translateZ(-10vh);
+      transform: rotateX(-90deg) translateZ(-10vh);
+    }
+
+    #third-bar .bar {
+      width: 22vh;
+      height: 4vh;
+    }
+
+    #third-bar .bar .bar-face {
+      background: rgba(232, 154, 173, 0.7);
+    }
+
+    #third-bar .bar .bar-face.floor {
+      box-shadow: 0 0.6em 0.6em -0.2em rgba(0, 0, 70, 0.25), 0 -1em 7em 0.25em #4d5075, 0 -0.38em 12.5em 5em rgba(255, 255, 255, 0.4);
+    }
+
+    #third-bar .bar .bar-face.percentage:before {
+      box-shadow: 0 0.8em 3.5em -0.15em rgba(236, 0, 113, 0.5);
+    }
+
+    #third-bar .bar .bar-face.roof {
+      -webkit-transform: translateZ(4vh);
+      transform: translateZ(4vh);
+    }
+
+    #third-bar .bar .bar-face.back {
+      -webkit-transform: rotateX(-90deg) translateZ(-4vh);
+      transform: rotateX(-90deg) translateZ(-4vh);
+    }
+
+    #third-bar .bar .bar-face.percentage:before {
+      background: linear-gradient(90deg, rgba(245, 239, 200, 0.5), #ec0071);
+    }
+
+    #third-bar .bar .indicator {
+      box-shadow: 0px 7px 18px rgba(236, 0, 113, 0.3);
+      background: #ec0071;
+      width: 4vh;
+      height: 4vh;
+      color: white;
+      -webkit-transform: translateY(5.6vh);
+      transform: translateY(5.6vh);
+      text-align: center;
+      font-size: 2.5vh;
+      font-weight: 900;
+      line-height: 4vh;
+    }
+
+    #third-bar .bar .indicator:before {
+      content: "";
+      position: absolute;
+      background: #ec0071;
+      left: 0;
+      right: 0;
+      margin: auto;
+      top: -6px;
+      width: 4vh;
+      height: 4vh;
+      z-index: -1;
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="utils">
+    <div id="div_logo">
+      公共画板
+    </div>
+    <div class="div_hover" id="div_zhuashou">
+      <i class="fa fa-rocket" title="抓手"></i>
+      抓手
+    </div>
+    <div class="div_hover" id="div_qianbi">
+      <i class="fa fa-pencil" title="铅笔"></i>
+      铅笔
+    </div>
+    <div class="div_hover dropdown" id="div_cuxi">
+      <i class="fa fa-barcode" title="粗细"></i>
+      粗细
+      <div class="dropdown-content">
+        <main class="perspective" id="third-bar">
+          <section class="bar">
+            <div class="bar-face back percentage"></div>
+            <div class="bar-face floor percentage"></div>
+            <div class="bar-face roof percentage"></div>
+            <div class="bar-face front percentage"></div>
+            <div class="indicator" style="margin-left: 26%;">30%</div>
+          </section>
+          <input class="bar-input" type="range" min="0" max="100" value="30">
+        </main>
+      </div>
+    </div>
+    <div class="div_hover" id="div_color">
+      <div class="div_colors">
+        <div class="div_color" id="color_active" style="background-color: #000000;"></div>
+        <div class="div_color color_hover" style="background-color: #000000;"></div>
+        <div class="div_color color_hover" style="background-color: #808080;"></div>
+        <div class="div_color color_hover" style="background-color: #b22222;"></div>
+        <div class="div_color color_hover" style="background-color: #ff0000;"></div>
+        <div class="div_color color_hover" style="background-color: #ff4500;"></div>
+        <div class="div_color color_hover" style="background-color: #ffff00;"></div>
+        <div class="div_color color_hover" style="background-color: #008000;"></div>
+        <div class="div_color color_hover" style="background-color: #0000ff;"></div>
+        <div class="div_color color_hover" style="background-color: #4b0082;"></div>
+        <div class="div_color color_hover" style="background-color: #8b008b;"></div>
+      </div>
+      <div class="div_colors">
+        <div class="div_color" style="background-color: #00000000;"></div>
+        <div class="div_color color_hover" style="background-color: #ffffff;"></div>
+        <div class="div_color color_hover" style="background-color: #696969;"></div>
+        <div class="div_color color_hover" style="background-color: #a52a2a;"></div>
+        <div class="div_color color_hover" style="background-color: #dc143c;"></div>
+        <div class="div_color color_hover" style="background-color: #ffa500;"></div>
+        <div class="div_color color_hover" style="background-color: #f0e68c;"></div>
+        <div class="div_color color_hover" style="background-color: #90ee90;"></div>
+        <div class="div_color color_hover" style="background-color: #87cefa;"></div>
+        <div class="div_color color_hover" style="background-color: #483d8b;"></div>
+        <div class="div_color color_hover" style="background-color: #9932cc;"></div>
+      </div>
+      颜色
+    </div>
+  </div>
+  <canvas id="tutorial_1" width="100" height="100"></canvas>
+  <canvas id="tutorial_2" width="100" height="100"></canvas>
+  <script>
+    //窗口尺寸改变响应（修改canvas大小）
+    function resizeCanvas() {
+      let t1 = document.querySelector('#tutorial_1');
+      let t2 = document.querySelector('#tutorial_2');
+      t1.setAttribute("width", window.innerWidth);
+      t1.setAttribute("height", window.innerHeight);
+      t2.setAttribute("width", window.innerWidth);
+      t2.setAttribute("height", window.innerHeight);
+    };
+    class TigerCanvas {
+      constructor(canvas_id_1, canvas_id_2) {
+        this.initBoard();
+        this.canvas_1 = document.getElementById(canvas_id_1);
+        this.canvas_2 = document.getElementById(canvas_id_2);
+        this.ctx_1 = this.canvas_1.getContext('2d');
+        this.ctx_2 = this.canvas_2.getContext('2d');
+        this.ctx_1.drawing = this.ctx_2.drawing = false;
+        this.ctx_1.queue = [];
+        this.loading = true;
+        this.backimg = new Image();
+        this.caozuos = [];
+        this.dx = this.dy = 0;
+        this.w = 1000;
+        this.h = 800;
+        this.initEvent();
+        // 初始化WS
+        this.initWS();
+        // 初始化背景定时器
+        this.initBack();
+      }
+
+      initWS() {
+        let that = this;
+        this.WS = new WebSocket("ws://dao.hbmu.xyz/api_draw/ws_draw/");
+        this.WS.onopen = function () {
+          console.log('握手成功');
+          setInterval(() => { that.sendMsg(3) }, 20000);
+          that.sendMsg(1);
+          that.loading = false;
+        };
+        this.WS.onerror = function () {
+          alert("连接服务器失败，请刷新页面！");
+        }
+        this.WS.onmessage = function (e) {
+          let data = JSON.parse(e.data);
+          if (data.genre == 2) {
+            // 新操作
+            that.ctx_1.queue.push(data);
+          } else if (data.genre == 3) {
+            // pingpong
+          } else {
+            // 更新背景
+            that.updateBack(data.time);
+          }
+        };
+      }
+      close(){
+        this.WS.close();
+      }
+
+      initEvent() {
+        // 鼠标按下
+        this.canvas_2.onmousedown = this.onmousedown(false);
+        // 鼠标松开或移走
+        this.canvas_2.onmouseup = this.canvas_2.onmouseout = this.onmouseup(false);
+        // 鼠标移动
+        this.canvas_2.onmousemove = this.onmousemove(false);
+
+        let ae = this.canvas_2.addEventListener;
+        ae("touchstart", this.onmousedown(true), true);
+        ae("touchend", this.onmouseup(true), true);
+        ae("touchmove", this.onmousemove(true), true);
+        ae("touchcancel", this.onmouseup(true), true);
+      }
+
+      initBoard() {
+        let that = this;
+        let chs = document.getElementsByClassName("color_hover");
+        let ca = document.getElementById("color_active");
+        let click_fun = function () {
+          ca.style.backgroundColor = this.style.backgroundColor;
+          console.log(this.style.backgroundColor);
+          that.color(this.style.backgroundColor);
+        }
+        for (var i in chs) {
+          try {
+            chs[i].onclick = click_fun;
+            chs[i].addEventListener("touchstart", click_fun, false);
+          } catch (error) { }
+        }
+      }
+
+      initBack() {
+        let that = this, Q = this.ctx_1.queue
+        setInterval(() => {
+          if (!that.ctx_1.drawing && Q.length > 0) {
+            that.ctx_1.drawing = true;
+            while (Q.length > 0) {
+              let data = Q.shift();
+              let content = data.content;
+              that.ctx_1.strokeStyle = content.style[0];
+              that.ctx_1.lineWidth = content.style[1];
+              that.ctx_1.globalAlpha = content.style[2];
+              that.ctx_1.lineCap = content.style[3];
+              that.ctx_1.lineJoin = content.style[4];
+              if (content.typee == "line" && content.lines.length == 1) {
+                that.ctx_1.beginPath();
+                that.ctx_1.moveTo(content.lines[0][0] - that.dx, content.lines[0][1] - that.dy);
+                that.ctx_1.lineTo(content.lines[0][0] - that.dx, content.lines[0][1] - that.dy);
+                that.ctx_1.stroke();
+              } else if (content.typee == "line") {
+                that.ctx_1.beginPath();
+                that.ctx_1.moveTo(content.lines[0][0] - that.dx, content.lines[0][1] - that.dy);
+                content.lines.forEach(p => {
+                  that.ctx_1.lineTo(p[0] - that.dx, p[1] - that.dy);
+                });
+                that.ctx_1.stroke();
+              }
+            }
+            that.ctx_1.drawing = false;
+          }
+        }, 500);
+      }
+
+      // 更新背景
+      updateBack(time) {
+        let that = this;
+        console.log("更新背景");
+        // let img = new Image();   // 创建img元素
+        that.backimg.onload = function () {
+          console.log("更新完背景");
+          that.ctx_1.drawImage(that.backimg, 0, 0);
+          that.ctx_2.clearRect(0, 0, that.canvas_2.width, that.canvas_2.height);
+        }
+        that.backimg.src = 'http://dao.hbmu.xyz/api_draw/back_img/?x=' + that.dx +
+          "&y=" + that.dy + "&w=" + that.canvas_2.width + "&h=" + that.canvas_2.height + "&r=" + Math.random(); // 设置图片源地址
+      }
+
+      // 上传操作
+      upCaoZuo() {
+        let czs = this.caozuos;
+        if (czs.length > 0) {
+          this.sendMsg(2, {
+            typee: "line",
+            lines: czs,
+            style: [this.color(), this.lineWidth(), this.alpha(), this.lineCap(), this.lineJoin()]
+          });
+          czs.length = 0;
+        }
+        this.ctx_2.drawing = false;
+      }
+
+      sendMsg(genre, content) { //发送消息
+        this.sendStr(JSON.stringify({
+          genre: genre,
+          content: content,
+        }));
+      }
+      sendStr(data) { //数据发送
+        console.log("数据发送");
+        console.log(data);
+        this.WS.send(data);
+      }
+
+      getEvent(is_phone, event) {
+        let new_event = event;
+        if (is_phone) {
+          new_event = {};
+          event.preventDefault();
+          new_event.button = 0;
+          new_event.clientX = event.changedTouches[0].pageX;
+          new_event.clientY = event.changedTouches[0].pageY;
+        }
+        return new_event;
+      }
+      onmousedown(is_phone) {
+        let that = this;
+        return (event) => {
+          let new_event = that.getEvent(is_phone, event);
+          if (new_event.button == 0 && !that.loading) {
+            that.ctx_2.drawing = true;
+            that.ctx_2.beginPath();
+            that.ctx_2.moveTo(new_event.clientX, new_event.clientY);
+            that.caozuos.push([new_event.clientX + that.dx, new_event.clientY + that.dy]);
+          }
+        }
+      }
+      onmousemove(is_phone) {
+        let that = this;
+        return (event) => {
+          let new_event = that.getEvent(is_phone, event);
+          if (that.ctx_2.drawing && !that.loading) {
+            that.ctx_2.lineTo(new_event.clientX, new_event.clientY);
+            that.caozuos.push([new_event.clientX + that.dx, new_event.clientY + that.dy]);
+            that.ctx_2.stroke();
+          }
+        }
+      }
+      onmouseup(is_phone) {
+        let that = this;
+        return (event) => {
+          let new_event = that.getEvent(is_phone, event);
+          if (new_event.button == 0) {
+            that.upCaoZuo();
+          }
+        }
+      }
+
+      // 设置或获取画笔透明度
+      alpha(alpha) {
+        if (alpha) {
+          this.ctx_2.globalAlpha = alpha;
+        }
+        return this.ctx_2.globalAlpha;
+      }
+      // 设置或获取画笔颜色
+      color(color) {
+        if (color) {
+          this.ctx_2.strokeStyle = color;
+        }
+        return this.ctx_2.strokeStyle;
+      }
+      // 设置或获取画笔末端样式
+      // butt	默认。向线条的每个末端添加平直的边缘。
+      // round	向线条的每个末端添加圆形线帽。
+      // square	向线条的每个末端添加正方形线帽。
+      lineCap(lineCap) {
+        if (lineCap) {
+          this.ctx_2.lineCap = lineCap;
+        }
+        return this.ctx_2.lineCap;
+      }
+      // 设置或获取边角的类型
+      // bevel	创建斜角。
+      // round	创建圆角。
+      // miter	默认。创建尖角。
+      lineJoin(lineJoin) {
+        if (lineJoin) {
+          this.ctx_2.lineJoin = lineJoin;
+        }
+        return this.ctx_2.lineJoin;
+      }
+      // 设置或获取当前线条的宽度
+      lineWidth(width) {
+        if (width)
+          this.ctx_2.lineWidth = width;
+        return this.ctx_2.lineWidth;
+      }
+      getResise() {
+        let that = this;
+        return () => {
+          // 图像拷贝
+          // let data_1 = that.ctx_1.getImageData(0, 0, that.canvas_1.width, that.canvas_1.height);
+          let data_2 = that.ctx_2.getImageData(0, 0, that.canvas_2.width, that.canvas_2.height);
+          // 改变大小
+          that.canvas_1.setAttribute("width", window.innerWidth);
+          that.canvas_1.setAttribute("height", window.innerHeight);
+          that.canvas_2.setAttribute("width", window.innerWidth);
+          that.canvas_2.setAttribute("height", window.innerHeight);
+          // 粘贴图像
+          // that.ctx_1.putImageData(data_1,0,0);
+          that.ctx_2.putImageData(data_2, 0, 0);
+          that.updateBack();
+        }
+      }
+    }
+    var tiger = null;
+    window.onload = function () {
+      resizeCanvas();
+      tiger = new TigerCanvas('tutorial_1', 'tutorial_2');
+      window.onresize = tiger.getResise();
+
+      function initInputs() {
+        var allInputs = document.body.querySelectorAll(".bar-input");
+
+        for (var i = 0; i < allInputs.length; i++) {
+          var input = allInputs[i];
+          var barId = input.parentNode.id;
+          var styleEl = document.head.appendChild(document.createElement("style"));
+
+          if (i == allInputs.length - 1) {
+            //set indicator
+            var indicator = input.parentNode.querySelector('.bar .indicator');
+            setBarIndicator(barId, input, styleEl, indicator);
+            input.oninput = setBarIndicator.bind(this, barId, input, styleEl, indicator);
+            input.onchange = setBarIndicator.bind(this, barId, input, styleEl, indicator);
+          } else {
+            setBar(barId, input, styleEl);
+            input.oninput = setBar.bind(this, barId, input, styleEl);
+            input.onchange = setBar.bind(this, barId, input, styleEl);
+          }
+        }
+      }
+
+      function setBar(barId, input, styleEl) {
+        styleEl.innerHTML =
+          "#" + barId + " .bar-face.percentage:before {width:" + input.value + "%;}";
+      }
+
+      function setBarIndicator(barId, input, styleEl, indicatorEl) {
+        styleEl.innerHTML =
+          "#" + barId + " .bar-face.percentage:before {width:" + input.value + "%;}";
+        indicatorEl.style.marginLeft = (input.value - 10) + '%';
+        indicatorEl.textContent = input.value + '%';
+        console.log(input.value + '%');
+        tiger.lineWidth(Math.round(input.value / 12) + 1);
+      }
+
+      initInputs();
+    };
+    window.onbeforeunload = function () {
+      tiger.close();
+    }
+  </script>
+</body>
+
+</html>
